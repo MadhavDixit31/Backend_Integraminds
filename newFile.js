@@ -18,10 +18,45 @@
 //     await checkpassword();
 // }
 
-const http = require("http");
+const os = require("os");
+
+
+const http = require('http');
+
+const memory = os.freemem();
 
 const server = http.createServer((req, res) => {
-    response.add("Initial Setup Demo");
+
+    const requesturl = req.url;
+    console.log("requesturl : ", requesturl);
+
+    const requestMethod = req.method;
+    console.log("requestMethod : ", requestMethod);
+
+    if (requesturl === "/home") {
+        console.log("this is home page");
+        res.end("Welcome to Home Page");
+    }
+
+    else if (requesturl === "/about") {
+        console.log("this is About page");
+        res.end("Welcome to About Page");
+    }
+
+    else if (requesturl === "/memo") {
+        console.log("this is memo page");
+        console.log(memory);
+        //res.end("Welcome to memo Page");
+        res.end(`memory ${memory}`);
+    }
+
+    else {
+        res.end("404 Page Not Found");
+    }
 });
 
-server.listen(3000);
+const port = 3000;
+server.listen(port);
+
+console.log("Server running at http://localhost:3000");
+
