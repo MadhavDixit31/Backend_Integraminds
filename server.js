@@ -13,15 +13,26 @@
 //     console.log('Server is running on port 3000');
 // });
 
-const express = require('express');
+// const express = require('express');
 
-const app = express();
+// const app = express();
 
-app.get("/users", (req, res) => {
-   const getuser = require('./controllers/usercontroller');
-   getuser.getAllUsers(req, res);
-});
+// app.get("/users", (req, res) => {
+//    const getuser = require('./controllers/usercontroller');
+//    getuser.getAllUsers(req, res);
+// });
+
+// app.listen(3000, () => {
+//     console.log('Server is running on port 3000');
+// });
+
+const express = require('express')
+const userRoutes = require('./routes/userRouts')
+
+const app = express()
+
+app.use("/", userRoutes)
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
-});
+})
