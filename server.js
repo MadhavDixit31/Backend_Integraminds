@@ -37,47 +37,58 @@ const authRoutes = require('./routes/authRoutes')
 const jwtToken = process.env.jwtToken || 'your_secret_key' 
 
 const app = express()
+
 app.get('/', (req, res) => {
     res.json({ message: 'Server setup done', status: 200 });
 })
-// const userMiddleware = (req, res, next) => {
-//     // Middleware logic for user authentication or other checks
-//     console.log("User middleware executed", req.query.skip);
-//     if(req.query.skip === "true") {
-//         next();
-//     }else{
-//         res.send("Unortherised user");
-//     }
-// }
-// app.use(userMiddleware)
+
+app.set('view engine', 'ejs')
+
+app.get("/homepage", (req, res) => {
+    res.render("homepage", { 
+        name: "List of students",
+        student:[
+            {name: "John Doe", age: 20},
+            {name: "Jane Smith", age: 22},
+            {name: "Alice Johnson", age: 19}
+        ] });
+});
 
 
 
-
+const userMiddleware = (req, res, next) => {
+    // Middleware logic for user authentication or other checks
+    console.log("User middleware executed", req.query.skip);
+    if(req.query.skip === "true") {
+        next();
+    }else{
+        res.send("Unortherised user");
+    }
+}
+app.use(userMiddleware)
 
 
 const authMiddleware = (req, res, next) => {
-    // Middleware logic for user authentication or other checks
-    const authHeader = req.headers.authorization?.split(' ')[1]; // Assuming Bearer token
+
+    const authHeader = req.headers.authorization?.split(' ')[1];
     console.log("User middleware executed", authHeader);
-    console.log("JWT Token from env:", jwtToken); 
-    if(!authHeader){
-        res.send("Unauthorized user");
-    } else {
-        try {
-            const decoded = jwt.verify(authHeader, jwtToken);
-            req.user = decoded; // Attach user info to the request object
-            console.log("Decoded token:", decoded);
-        } catch (err) {
-            return res.status(401).json({ message: "Invalid token" });
-        }
+
+    if (!authHeader) {
+        return res.status(401).send("Unauthorized user");
     }
 
-    //If fails authentication, you can send a response like this:
-    //res.send("Unauthorized access");
+    try {
+        const decoded = jwt.verify(authHeader, jwtToken);
+        req.user = decoded;
+        console.log("Decoded token:", decoded);
 
-    // If successful, call next() to proceed to the next middleware or route handler
-    //next();
+        next();   // ✅ VERY IMPORTANT
+
+    } catch (err) {
+        return res.status(401).json({
+            message: "Invalid token"
+        });
+    }
 };
 app.use(authMiddleware);
 
